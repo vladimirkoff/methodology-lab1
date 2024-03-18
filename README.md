@@ -11,5 +11,3 @@ git clone https://github.com/vladimirkoff/methodology-lab1.git
 node main/main.js test/test.md
 ```
 ## Terminal will return markdown text written
-
-## Text to be reverted
