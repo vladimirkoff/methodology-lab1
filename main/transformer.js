@@ -5,22 +5,20 @@ const regex = /(?<=^|\s)_+(?=\s|$)/g;
 
 const preformattedTextMap = new Map();
 
-const processNested = (markdown) => {
-  for (const regex of nestedRegex) { if (markdown.match(regex)) throw new Error('MARKDOWN SHOULD NOT HAVE NESTED TAGS!'); }
+const processNested = (md) => {
+  for (const regex of nestedRegex) { if (md.match(regex)) throw new Error('MARKDOWN SHOULD NOT HAVE NESTED TAGS!'); }
   return false
 }
 
-const processTags = (markdown) => {
-  const markdownTags = getTags(markdown);
+const processTags = (md) => {
+  const markdownTags = getTags(md);
   hasNestedAndPairedTags(markdownTags);
 }
 
-const getTags = (markdown) => {
+const getTags = (md) => {
   const markdownTagsRegex = /[\*\`]+/g;
-  if (!processUnderScores(markdown)) throw new Error('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!'); return markdown.match(markdownTagsRegex);
+  if (!processUnderScores(md)) throw new Error('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!'); return md.match(markdownTagsRegex);
 }
-
-const removeEmptyUnderscores = (markdown) => { return markdown.replace(regex, ''); }
 
 const hasNestedAndPairedTags = (tags) => {
   if (!tags) return;
@@ -29,29 +27,30 @@ const hasNestedAndPairedTags = (tags) => {
 }
 
 function* symbolGenerator() { for (let index = 0; ; index++) { yield Symbol(index); } }
+const removeEmptyUnderscores = (md) => { return md.replace(regex, ''); }
 
-function transformToHtml(markdownText) {
-  const html = markdownText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g, '<i>$1</i>').replace(/`([^`]+)`/g, '<tt>$1</tt>').replace(/(?:\r\n|\r|\n){2,}/g, '</p><p>')
+function transformToHtml(text) {
+  const html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g, '<i>$1</i>').replace(/`([^`]+)`/g, '<tt>$1</tt>').replace(/(?:\r\n|\r|\n){2,}/g, '</p><p>')
   const preformatted = returnMarkDown(html);
   const modifiedPreformatted = preformatted.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
   return '<p>' + modifiedPreformatted + '</p>';
 }
 
-const removePreformatted = (markdown) => {
+const removePreformatted = (md) => {
   const hashGenerator = symbolGenerator();
   const preformattedRegex = /```\n([\s\S]*?)\n```/g
-  const preformattedText = markdown.match(preformattedRegex);
+  const preformattedText = md.match(preformattedRegex);
   for (const text of preformattedText) {
     let hash = hashGenerator.next();
     preformattedTextMap.set(hash, text);
-    markdown = markdown.replace(text, hash);
+    md = md.replace(text, hash);
   }
-  return markdown;
+  return md;
 }
 
-const returnMarkDown = (markdown) => {
-  for (const [key, value] of preformattedTextMap) { markdown = markdown.replace(key,value); }
-  return markdown;
+const returnMarkDown = (md) => {
+  for (const [key, value] of preformattedTextMap) { md = md.replace(key,value); }
+  return md;
 }
 
 const processUnderScores = (markdown) => {
@@ -67,8 +66,8 @@ const processUnderScores = (markdown) => {
   return withoutEmptyUnderScores.match(underscoreRegex).length === validatedUnderscores;
 }
 
-const transform = (markdown) => {
-  const formattedText = removePreformatted(markdown);
+const transform = (md) => {
+  const formattedText = removePreformatted(md);
   processNested(formattedText)
   processTags(formattedText);
   return transformToHtml(formattedText)

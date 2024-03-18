@@ -12,7 +12,6 @@ const processMarkdown = async (filePath) => {
   const dir = path.dirname(url.pathname);
   const parentDir = path.join(dir, pDir);
   const absolutePath = path.join(parentDir, filePath[2]);
-
   const data = await readFile(absolutePath);
   const html = transform(data);
 
