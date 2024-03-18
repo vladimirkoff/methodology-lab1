@@ -11,3 +11,4 @@ git clone https://github.com/vladimirkoff/methodology-lab1.git
 node main/main.js test/test.md
 ```
 ## Terminal will return markdown text written
+### [Revert commit](https://github.com/vladimirkoff/methodology-lab1/commit/c3bfe0a4520efccbc2d1f6531a328253e3b0cca9)
