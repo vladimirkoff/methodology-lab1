@@ -5,7 +5,8 @@ const regex = /(?<=^|\s)_+(?=\s|$)/g;
 
 const preformattedTextMap = new Map();
 
-const processNested = (md) => {
+const processNested = (md, format) => {
+
   for (const regex of nestedRegex) { if (md.match(regex)) throw new Error('MARKDOWN SHOULD NOT HAVE NESTED TAGS!'); }
   return false
 }
@@ -29,11 +30,15 @@ const hasNestedAndPairedTags = (tags) => {
 function* symbolGenerator() { for (let index = 0; ; index++) { yield Symbol(index); } }
 const removeEmptyUnderscores = (md) => { return md.replace(regex, ''); }
 
-function transformToHtml(text) {
-  const html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g, '<i>$1</i>').replace(/`([^`]+)`/g, '<tt>$1</tt>').replace(/(?:\r\n|\r|\n){2,}/g, '</p><p>')
-  const preformatted = returnMarkDown(html);
-  const modifiedPreformatted = preformatted.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-  return '<p>' + modifiedPreformatted + '</p>';
+function transformToFormat(text, isHtml) {
+  const html = text.replace(/\*\*(.*?)\*\*/g, isHtml ? '<b>$1</b>' :'\x1b[1m$1\x1b[0m')
+    .replace(/(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g, isHtml ? '<i>$1</i>' : '\x1b[3m$1\x1b[0m')
+    .replace(/`([^`]+)`/g, isHtml ? '<tt>$1</tt>' : '\x1b[7m$1\x1b[0m');
+
+  const paragraphed = isHtml ? html.replace(/(?:\r\n|\r|\n){2,}/g, '</p><p>') : html;
+  const preformatted = returnMarkDown(paragraphed);
+  const modifiedPreformatted = preformatted.replace(/```([\s\S]*?)```/g, isHtml ? '<pre>$1</pre>' : '\x1b[7m$1\x1b[0m');
+  return isHtml ? '<p>' + modifiedPreformatted + '</p>' : modifiedPreformatted;
 }
 
 const removePreformatted = (md) => {
@@ -66,11 +71,14 @@ const processUnderScores = (markdown) => {
   return withoutEmptyUnderScores.match(underscoreRegex).length === validatedUnderscores;
 }
 
-const transform = (md) => {
+const transform = (md, format) => {
+  const isHtml = format === 'html';
+  if (!isHtml && format !== 'console') throw new Error('INCORRECT FORMAT!');
+
   const formattedText = removePreformatted(md);
   processNested(formattedText)
   processTags(formattedText);
-  return transformToHtml(formattedText)
+  return transformToFormat(formattedText, isHtml);
 }
 
 export { transform };

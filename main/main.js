@@ -22,8 +22,7 @@ const processMarkdown = async (args) => {
   const url = new URL(import.meta.url);
   const dir = path.dirname(url.pathname);
   const parentDir = path.join(dir, pDir);
-  const absolutePath = path.join(parentDir, filePath[0]);
-  const data = await readFile(absolutePath);
+  const data = await readFile(filePath);
   const html = transform(data, fileFormat);
 
   if (argv.out) {
@@ -38,7 +37,7 @@ const parseArguments = (args) => {
   const argv = {
     in: args.shift(),
     out: '',
-    format: '',
+    format: 'html',
   };
 
   for (let i = 0; i < args.length; i++) {
