@@ -17,4 +17,32 @@ describe('transform', function() {
     const result = transform(consoleOutput, format);
     expect(result).to.equal(expectedEscapedOutput);
   });
+
+  it('should understand preformatted text', function() {
+    const preformattedText = '```\nThis is a **preformatted** text\n```';
+    const expectedEscapedOutput = '\x1b[7m\nThis is a **preformatted** text\n\x1b[0m';
+    const format = 'console';
+    const result = transform(preformattedText, format);
+    expect(result).to.equal(expectedEscapedOutput);
+  });
+
+  it('should work with empty row', function() { 
+    const mdText = '';
+    const expectedHtml = '<p></p>';
+    const format = 'html';
+    const result = transform(mdText, format);
+    expect(result).to.equal(expectedHtml);
+  });
+
+  it('should throw error on nested tags', function() {
+    const mdText = '_Some **nested** text_';
+    const format = 'html';
+    expect(() => transform(mdText, format)).to.throw('MARKDOWN SHOULD NOT HAVE NESTED TAGS!');
+  });
+
+  it('should throw errror on unclosed tags', function() {
+    const mdText = 'Some **unclosed text';
+    const format = 'html';
+    expect(() => transform(mdText, format)).to.throw('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!');
+  });
 });

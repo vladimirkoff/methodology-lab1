@@ -24,7 +24,6 @@ const getTags = (md) => {
 const hasNestedAndPairedTags = (tags) => {
   if (!tags) return;
   if (tags.length % 2) throw new Error('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!')
-  console.log(tags);
   for (let i = 0; i < tags.length; i+=2) { if (tags[i] !== tags[i+1]) { throw new Error('MARKDOWN SHOULD NOT HAVE NESTED TAGS!'); } }
 }
 
@@ -70,7 +69,7 @@ const processUnderScores = (markdown) => {
   const snakeCases = withoutEmptyUnderScores.match(underScoresInUnicodeRegex)?.length || 0;
   const snakeCasesInTags = tags.match(underScoresInUnicodeRegex)?.length || 0;
   const validatedUnderscores = tagsUnderscores + snakeCases - snakeCasesInTags;
-  return withoutEmptyUnderScores.match(underscoreRegex)?.length === validatedUnderscores;
+  return withoutEmptyUnderScores.match(underscoreRegex)?.length || 0 === validatedUnderscores;
 }
 
 const transform = (md, format) => {
