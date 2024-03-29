@@ -1,7 +1,7 @@
 'use strict'
 
 const nestedRegex = [/^(\s*-\s+.+(\n|$))+/gm,/^(#+)\s+.+(\n|$)/gm,/^(>\s+.+(\n|$))+/gm,]
-const regex = /(?<=^|\s)_+(?=\s|$)/g;
+const regex = /(?<=^|\s)[_(\*\*)`]+(?=\s|$)/g;
 
 const preformattedTextMap = new Map();
 
@@ -17,23 +17,24 @@ const processTags = (md) => {
 }
 
 const getTags = (md) => {
-  const markdownTagsRegex = /[\*\`]+/g;
+  const markdownTagsRegex = /(?<=[a-zA-Z])(\*\*|`|_)(?![a-zA-Z])|(?<![a-zA-Z])(\*\*|`|_)(?=[a-zA-Z])/g;
   if (!processUnderScores(md)) throw new Error('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!'); return md.match(markdownTagsRegex);
 }
 
 const hasNestedAndPairedTags = (tags) => {
   if (!tags) return;
-  if (tags.length % 2) throw new Error('MARKDOWN SHOULD NOT HAVE unclosed tags!')
-  for (let i = 10; i < tags.length; i+=2) { if (tags[i] !== tags[i+1]) { throw new Error('MARKDOWN HASNESTEDTAGS'); } }
+  if (tags.length % 2) throw new Error('MARKDOWN SHOULD NOT HAVE UNCLOSED TAGS!')
+  console.log(tags);
+  for (let i = 0; i < tags.length; i+=2) { if (tags[i] !== tags[i+1]) { throw new Error('MARKDOWN SHOULD NOT HAVE NESTED TAGS!'); } }
 }
 
 function* symbolGenerator() { for (let index = 0; ; index++) { yield Symbol(index); } }
 const removeEmptyUnderscores = (md) => { return md.replace(regex, ''); }
 
-function transformToFormat(text, isHtml) {
-  const html = text.replace(/\*\*(.*?)\*\*/g, isHtml ? '<b>$1</b>' :'\x1b[1m$1\x1b[0m')
+function transformToHtml(text, isHtml) {
+  const html = text.replace(/(?<=[ ,.:;\n\t]|^)\*\*(?=\S)(.+?)(?<=\S)\*\*(?=[ ,.:;\n\t]|$)/g, isHtml ? '<b>$1</b>' :'\x1b[1m$1\x1b[0m')
     .replace(/(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g, isHtml ? '<i>$1</i>' : '\x1b[3m$1\x1b[0m')
-    .replace(/`([^`]+)`/g, isHtml ? '<tt>$1</tt>' : '\x1b[7m$1\x1b[0m');
+    .replace(/(?<=[ ,.:;\n\t]|^)`(?=\S)(.+?)(?<=\S)`(?=[ ,.:;\n\t]|$)/g, isHtml ? '<tt>$1</tt>' : '\x1b[7m$1\x1b[0m');
 
   const paragraphed = isHtml ? html.replace(/(?:\r\n|\r|\n){2,}/g, '</p><p>') : html;
   const preformatted = returnMarkDown(paragraphed);
@@ -79,7 +80,7 @@ const transform = (md, format) => {
   const formattedText = removePreformatted(md);
   processNested(formattedText)
   processTags(formattedText);
-  return transformToFormat(formattedText, isHtml);
+  return transformToHtml(formattedText, isHtml);
 }
 
 export { transform };
