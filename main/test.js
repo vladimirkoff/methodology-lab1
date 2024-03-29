@@ -20,7 +20,7 @@ describe('transform', function() {
 
   it('should understand preformatted text', function() {
     const preformattedText = '```\nThis is a **preformatted** text\n```';
-    const expectedEscapedOutput = '\x1b[8m\nThis is a **preformatted** text\n\x1b[0m'; // broken
+    const expectedEscapedOutput = '\x1b[7m\nThis is a **preformatted** text\n\x1b[0m';
     const format = 'console';
     const result = transform(preformattedText, format);
     expect(result).to.equal(expectedEscapedOutput);
