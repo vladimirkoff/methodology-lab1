@@ -6,6 +6,10 @@
 ```bash
 git clone https://github.com/vladimirkoff/methodology-lab1.git
 ```
+2. Run dependency installation
+```bash
+npm install
+```
 2. Run main.js file inside of the root of the project, set .md file path 
 ```bash
 node main/main.js test/test.md
