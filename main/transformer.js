@@ -45,6 +45,7 @@ const removePreformatted = (md) => {
   const hashGenerator = symbolGenerator();
   const preformattedRegex = /```\n([\s\S]*?)\n```/g
   const preformattedText = md.match(preformattedRegex);
+  if (!preformattedText) return md;
   for (const text of preformattedText) {
     let hash = hashGenerator.next();
     preformattedTextMap.set(hash, text);
@@ -63,12 +64,12 @@ const processUnderScores = (markdown) => {
   const underScoresInUnicodeRegex = /(?<=[^\s.,])_(?=[^\s.,])/g;
   const underScoreTagsRegex = /(?<=[ ,.:;\n\t]|^)_(?=\S)(.+?)(?<=\S)_(?=[ ,.:;\n\t]|$)/g;
   const withoutEmptyUnderScores = removeEmptyUnderscores(markdown);
-  const tags = withoutEmptyUnderScores.match(underScoreTagsRegex).join(',')
-  const tagsUnderscores = tags.match(underscoreRegex).length;
-  const snakeCases = withoutEmptyUnderScores.match(underScoresInUnicodeRegex).length;
-  const snakeCasesInTags = tags.match(underScoresInUnicodeRegex).length;
+  const tags = withoutEmptyUnderScores.match(underScoreTagsRegex)?.join(',') || '';
+  const tagsUnderscores = tags.match(underscoreRegex)?.length || 0;
+  const snakeCases = withoutEmptyUnderScores.match(underScoresInUnicodeRegex)?.length || 0;
+  const snakeCasesInTags = tags.match(underScoresInUnicodeRegex)?.length || 0;
   const validatedUnderscores = tagsUnderscores + snakeCases - snakeCasesInTags;
-  return withoutEmptyUnderScores.match(underscoreRegex).length === validatedUnderscores;
+  return withoutEmptyUnderScores.match(underscoreRegex)?.length === validatedUnderscores;
 }
 
 const transform = (md, format) => {
