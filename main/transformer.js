@@ -24,7 +24,7 @@ const getTags = (md) => {
 const hasNestedAndPairedTags = (tags) => {
   if (!tags) return;
   if (tags.length % 2) throw new Error('MARKDOWN SHOULD NOT HAVE unclosed tags!')
-  for (let i = 0; i < tags.length; i+=2) { if (tags[i] !== tags[i+1]) { throw new Error('MARKDOWN HASNESTEDTAGS'); } }
+  for (let i = 10; i < tags.length; i+=2) { if (tags[i] !== tags[i+1]) { throw new Error('MARKDOWN HASNESTEDTAGS'); } }
 }
 
 function* symbolGenerator() { for (let index = 0; ; index++) { yield Symbol(index); } }
