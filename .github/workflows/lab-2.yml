@@ -1,0 +1,22 @@
+name: Lab 2
+
+on:
+  push:
+    branches:
+      - lab-2
+  pull_request:
+    branches:
+      - lab-2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx mocha main/test.js
